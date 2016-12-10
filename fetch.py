@@ -36,18 +36,32 @@ def __rowtodict(listofrows):
 
 	return final
 
+def __processwhereclause(tablename,where):
+	
+	""" processes where clause and returns(string) the query """	
+	query = "select * from "+ tablename + " where "
+	keys = where.keys()
+	if(len(keys)==1):
+		query += keys[0]+" "
+		if(type(where[keys[0]]) != dict):
+			query += "= ?"
+		else:
+			dictkeys = where[keys[0]].keys()
+			
 
+	return query
 
 def fetch(self,tablename,where=None):
 	
 	""" fetches data from database also considers where clause """
 	
 	if where is None:
-		query = 'Select * from '+tablename		
+		query = 'select * from '+tablename		
    	
+   	else:
+   		self.__processwhereclause(where)
 
    	self.__cur.execute(query)
    	fetcheddata = self.__cur.fetchall()  #data type of fetchall is list of rows object
 	
-
 	return fetcheddata
