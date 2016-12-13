@@ -7,6 +7,7 @@ class sqlwrapper():
 		self.__databasepath = None
 		self.__datatbaseaname = None
 		self.__metadata = []
+		self.__conn = None
 		self.__cur = None
 		self.__wheredict = {"$gt":"> ?", "$gte":">= ?", "$lt":"< ?", "$lte":"<= ?", "$bt":"> ? and < ?",
 		"$btei":">= ? and <= ?"}
@@ -15,16 +16,61 @@ class sqlwrapper():
 	def configure(self,databasepath):
 		self.__databasepath = databasepath
 		self.__datatbaseaname = databasepath.split('/')[-1]
-		conn = sql.connect(self.__databasepath)		
-		conn.row_factory = sql.Row
-   		self.__cur = conn.cursor()
+		self.__conn = sql.connect(self.__databasepath)		
+		self.__conn.row_factory = sql.Row
+   		self.__cur = self.__conn.cursor()
 
 	# def __updatemetadata(self):
+	def __rowtodict(self,listofrows):
 
-	def fetch(self,tablename,where=None):
+		"""function for internal use it converts rows object to list of dictionaries"""
+
+		final = []
+		temp = {}
+		if not listofrows:
+			return final
+
+		keys = listofrows[0].keys()
 		
-		if where is None:
-			query = 'Select * from '+tablename		
+		for row in listofrows:
+			for key in keys:
+				temp[key] = row[key]
+			
+			final.append(temp)
+			temp = {}
+		
+		return final
+
+	def fetch_all(self,tablename):
+		
+		""" fetches all the data from a given table """
+		
+	   	
+		query = 'select * from '+tablename		
+
 	   	self.__cur.execute(query)
 	   	fetcheddata = self.__cur.fetchall()  #data type of fetchall is list of rows object
+		fetcheddata = self.__rowtodict(fetcheddata)
 		return fetcheddata
+
+
+	def fetch_first(self,tablename):
+		"""fetches the first data from the table"""
+
+		query = 'select * from '+tablename+" ASC LIMIT 1"
+		self.__cur.execute(query)
+		fetcheddata = self.__cur.fetchall()
+		if not fetcheddata:
+			return "table is empty"
+		else:
+			fetcheddata = self.__rowtodict(fetcheddata)
+			return fetcheddata[0]
+
+	def fetch_last(self,tablename):
+		"""fetches the first data from the table"""
+
+		temp = self.fetch_all(tablename)
+		if not temp:
+			return "table is empty"
+		else:
+			return temp[-1]

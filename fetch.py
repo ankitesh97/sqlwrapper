@@ -132,15 +132,12 @@ def __processwhereclausetest(tablename,where):
 	return query
 
 
-def fetch(self,tablename,where=None):
+def fetch_all(self,tablename):
 	
-	""" fetches data from database also considers where clause """
+	""" fetches all the data from a given table """
 	
-	if where is None:
-		query = 'select * from '+tablename		
    	
-   	else:
-   		self.__processwhereclause(where)
+	query = 'select * from '+tablename		
 
    	self.__cur.execute(query)
    	fetcheddata = self.__cur.fetchall()  #data type of fetchall is list of rows object
