@@ -1,8 +1,11 @@
-import MySQLdb
+# import MySQLdb
+import sqlite3 as sql
 
 def insert(tablename,columns=None,values=None):#columns is a list
-	conn = MySQLdb.connect (host = "localhost",user = "root",passwd = "",db = "test")
+	# conn = MySQLdb.connect (host = "localhost",user = "root",passwd = "",db = "test")
+	conn = sql.connect('/home/ankitesh/modules/sqlwrapper/test.sqlite')
 	cursor = conn.cursor ()
+	for x in 
 	if columns:
 		query="Insert into "+tablename+" ("+','.join(columns)+") Values ("+','.join(values)+")"
 	else:
@@ -11,9 +14,9 @@ def insert(tablename,columns=None,values=None):#columns is a list
 	try:
 		cursor.execute(query)
 		conn.commit()
-		print "Successfully executed the query."
+		return "Successfully executed the query."
 	except:
 		conn.rollback()
-		print "Unsuccessful execution of query."
+		return "Unsuccessful execution of query."
 	conn.close()
-insert("k",[],['21','90','70'])
+insert("k",["id","name"],['21','90','70'])

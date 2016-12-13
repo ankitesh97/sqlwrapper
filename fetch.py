@@ -17,9 +17,13 @@ where = {"key":{"$btei":[start,end]}}								between ends included
 		"$btei":">= ? and <= ?"}
 def __keytoqueryvalue(key = None,keycolumn = None):
 	
+	""" A function that returns a part of query for a given where clause
+		it is for internal use
+	"""
+
 	if(key == "$gt"):
 		return "> ?"
-	elif(key == "$gte":
+	elif(key == "$gte"):
 		return ">= ?"
 	elif(key == "$lt"):
 		return "< ?"
@@ -29,8 +33,14 @@ def __keytoqueryvalue(key = None,keycolumn = None):
 		if(keycolumn is None):
 			return ""
 		else:
-			
-	
+			return keycolumn += " > ? and " += keycolumn += " < ?"
+	else:            #key == '$btei'
+		
+		if(keycolumn is None):
+			return ""
+		else:
+			return keycolumn += " >= ? and " += keycolumn += " <= ?"
+
 	
 	
 
@@ -104,12 +114,12 @@ def __processwhereclausetest(tablename,where):
 	keys = where.keys()
 	for key in keys:
 		query += key+ " "
-		if(type(where[key) != dict):
+		if(type(where[key]) != dict):
 			query += "= ?"
 		else:
 			dictkeys = where[key].keys()
 			if(len(dictkeys) > 0):
-				query += self.__wheredict[dictkeys[0]]
+				query += self.__keytoqueryvalue[dictkeys[0]]
 			else:
 				query = ""
 
@@ -134,5 +144,5 @@ def fetch(self,tablename,where=None):
 
    	self.__cur.execute(query)
    	fetcheddata = self.__cur.fetchall()  #data type of fetchall is list of rows object
-	
+	fetcheddata = self.__rowtodict(fetcheddata)
 	return fetcheddata
