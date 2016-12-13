@@ -1,7 +1,14 @@
 import sqlite3 as sql
-
+from helperfunctions import functions
 
 class sqlwrapper():
+
+	"""
+	class that provides an interface to query the database
+	use: 
+	from sqlwrapper import sqlwrapper
+	db = sqlwrapper()
+	"""
 
 	def __init__(self):
 		self.__databasepath = None
@@ -9,8 +16,7 @@ class sqlwrapper():
 		self.__metadata = []
 		self.__conn = None
 		self.__cur = None
-		self.__wheredict = {"$gt":"> ?", "$gte":">= ?", "$lt":"< ?", "$lte":"<= ?", "$bt":"> ? and < ?",
-		"$btei":">= ? and <= ?"}
+		self.__helper = functions()
 
 
 	def configure(self,databasepath):
@@ -28,26 +34,19 @@ class sqlwrapper():
    		self.__cur = self.__conn.cursor()
 
 	# def __updatemetadata(self):
-	def __rowtodict(self,listofrows):
-
-		"""function for internal use it converts rows object to list of dictionaries"""
-
-		final = []
-		temp = {}
-		if not listofrows:
-			return final
-
-		keys = listofrows[0].keys()
-		
-		for row in listofrows:
-			for key in keys:
-				temp[key] = row[key]
+	def __configuration_required(f):
+		def isconfigured(self,*args,**kwargs):
+			"""
+			checks if database path have been set
+			"""
+			if(self.__cur == None):
+				return "please set the databasepath using configure() method"
 			
-			final.append(temp)
-			temp = {}
-		
-		return final
 
+			return f(self,*args,**kwargs)
+		return isconfigured 
+
+	@__configuration_required
 	def fetch_all(self,tablename):
 		
 		""" 
@@ -55,7 +54,8 @@ class sqlwrapper():
 		example: db.fetch_all('users')
 		return_type: returns list of dictionaries (i.e the whole table)
 		"""
-		
+		# if(self.__isconfigured()):
+			# return "please set a database path using configure() method"
 	   	
 		query = 'select * from '+tablename		
 		try:
@@ -63,26 +63,30 @@ class sqlwrapper():
 		except Exception as e:
 			return "could not execute query, some error occured please try again, error was: "+str(e)
 	   	fetcheddata = self.__cur.fetchall()  #data type of fetchall is list of rows object
-		fetcheddata = self.__rowtodict(fetcheddata)
+		fetcheddata = self.__helper._functions__rowtodict(fetcheddata)
 		return fetcheddata
 
 
+	@__configuration_required
 	def fetch_first(self,tablename):
 		"""
 		fetches the first data from the table
 		example: db.fetch_first('users')
 		return_type: single dictionary (i.e row)
 		"""
-
+		# if(!self.__isconfigured()):
+			# return "please set a database path using configure() method"
+		
 		query = 'select * from '+tablename+" ASC LIMIT 1"
 		try:
 			self.__cur.execute(query)
 		except Exception as e:
 			return "could not execute query, some error occured please try again, error was: "+str(e)
 		fetcheddata = self.__cur.fetchall()
-		fetcheddata = self.__rowtodict(fetcheddata)
+		fetcheddata = self.__helper.rowtodict(fetcheddata)
 		return fetcheddata[0]
 
+	@__configuration_required
 	def fetch_last(self,tablename):
 		"""
 		   fetches the last data from the table
@@ -95,6 +99,7 @@ class sqlwrapper():
 			return temp
 		return temp[-1]
 
+	@__configuration_required
 	def fetch_where(self,tablename,where=None):
 		""" fetches data from the database with where condition
 			example: db.fetch_where('users','id >= 4')
@@ -114,5 +119,5 @@ class sqlwrapper():
 			return "could not execute query, some error occured please try again, error was: "+str(e)
 
 		fetcheddata = self.__cur.fetchall()
-		fetcheddata = self.__rowtodict(fetcheddata)
+		fetcheddata = self.__helper.rowtodict(fetcheddata)
 		return fetcheddata
