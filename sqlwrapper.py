@@ -47,8 +47,10 @@ class sqlwrapper():
 		
 	   	
 		query = 'select * from '+tablename		
-
-	   	self.__cur.execute(query)
+		try:
+			self.__cur.execute(query)
+		except Exception as e:
+			return "could not execute query some error occured please try again, error was "+str(e)
 	   	fetcheddata = self.__cur.fetchall()  #data type of fetchall is list of rows object
 		fetcheddata = self.__rowtodict(fetcheddata)
 		return fetcheddata
@@ -58,19 +60,18 @@ class sqlwrapper():
 		"""fetches the first data from the table"""
 
 		query = 'select * from '+tablename+" ASC LIMIT 1"
-		self.__cur.execute(query)
+		try:
+			self.__cur.execute(query)
+		except Exception as e:
+			return "could not execute query some error occured please try again, error was "+str(e)
 		fetcheddata = self.__cur.fetchall()
-		if not fetcheddata:
-			return "table is empty"
-		else:
-			fetcheddata = self.__rowtodict(fetcheddata)
-			return fetcheddata[0]
+		fetcheddata = self.__rowtodict(fetcheddata)
+		return fetcheddata[0]
 
 	def fetch_last(self,tablename):
-		"""fetches the first data from the table"""
+		"""fetches the last data from the table"""
 
 		temp = self.fetch_all(tablename)
-		if not temp:
-			return "table is empty"
-		else:
-			return temp[-1]
+		if(type(temp) == str):
+			return temp
+		return temp[-1]
