@@ -8,7 +8,7 @@ class sqlwrapper():
 		self.__datatbaseaname = None
 		self.__metadata = []
 		self.__cur = None
-		self.__wheredict = {"$gt":">", "$gte":">=", "$lt":"<", "$lte":"<=", "$bt":"> ? and < ?",
+		self.__wheredict = {"$gt":"> ?", "$gte":">= ?", "$lt":"< ?", "$lte":"<= ?", "$bt":"> ? and < ?",
 		"$btei":">= ? and <= ?"}
 
 

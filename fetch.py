@@ -3,17 +3,36 @@
 """ 
 where clause format 
 
-where = {"key":"equal to"}         
+where = {"key":"equal to"} 	        
 where = {"key1":{"$gt":"value"}, "key2":"what ever"}   			greater than
 where = {"key":{"$lt":"value"}}									less than
 where = {"key":{"$gte":"value"}}								greater than equal to
 where = {"key":{"$lte":"value"}}								less that equal to
-where = {"key":{"$bt":"value"}}									between ends excluded
-where = {"key":{"$btei":"value"}}								between ends included
+where = {"key":{"$bt":[start,end]}}									between ends excluded
+where = {"key":{"$btei":[start,end]}}								between ends included
 
 
 """
-
+		self.__wheredict = {"$gt":"> ?", "$gte":">= ?", "$lt":"< ?", "$lte":"<= ?", "$bt":"> ? and < ?",
+		"$btei":">= ? and <= ?"}
+def __keytoqueryvalue(key = None,keycolumn = None):
+	
+	if(key == "$gt"):
+		return "> ?"
+	elif(key == "$gte":
+		return ">= ?"
+	elif(key == "$lt"):
+		return "< ?"
+	elif(key == "$lte"):
+		return "<= ?"
+	elif(key == "$bt"):
+		if(keycolumn is None):
+			return ""
+		else:
+			
+	
+	
+	
 
 def __rowtodict(listofrows):
 
@@ -47,9 +66,61 @@ def __processwhereclause(tablename,where):
 			query += "= ?"
 		else:
 			dictkeys = where[keys[0]].keys()
-			
+			if(len(dictkeys) > 0):
+				query += self.__wheredict[dictkeys[0]]
+			else:
+				query = ""
+		return query
+	else:
+		for key in keys:
+			query += key+ " "
+			if(type(where[key) != dict):
+				query += "= ?"
+			else:
+				dictkeys = where[key].keys()
+				if(len(dictkeys) > 0):
+					query += self.__wheredict[dictkeys[0]]
+				else:
+					query = ""
+
+			if(query==""):
+				continue
+			elif(key != keys[-1]):
+				query += " and"
+			else:
+				continue
+		return query
+
 
 	return query
+
+
+
+
+def __processwhereclausetest(tablename,where):
+	
+	""" processes where clause and returns(string) the query """	
+	query = "select * from "+ tablename + " where "
+	keys = where.keys()
+	for key in keys:
+		query += key+ " "
+		if(type(where[key) != dict):
+			query += "= ?"
+		else:
+			dictkeys = where[key].keys()
+			if(len(dictkeys) > 0):
+				query += self.__wheredict[dictkeys[0]]
+			else:
+				query = ""
+
+		if(query==""):
+			continue
+		elif(key != keys[-1]):
+			query += " and"
+		else:
+			continue
+	return query
+
 
 def fetch(self,tablename,where=None):
 	
