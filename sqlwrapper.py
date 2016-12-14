@@ -269,13 +269,25 @@ class sqlwrapper():
 			return "could not drop the table, some error occured the error was: "+ str(e)
 
 	@__configuration_required
-	def create_table(self,columns=None,data_types=None,primary_key=None,foreign_key=None):
+	def create_table(self,tablename,columns,data_types,primary_key):
 		""" creates a table in the database
 		arguments:
 		coulmns = [] array which contains column names
-		data_types = [] valid data_types = [integer,text,real,numeric,blob,varchar
+		data_types = [] valid data_types = [integer,text,real,numeric,blob,varchar]
 		"""
-		if(columns == None):
+		if(len(columns) == 0):
 			return "please give columns"
-		if(data_types == None):
+		if(len(columns) == 0):
 			return "please give data_type"
+
+		if primary_key not in columns:
+			return "primary key is not in the column list"
+
+		for x in data_types:
+			if(self.__helper._functions__isvalid_dtype(x) == False):
+				return "please give a valid data type"
+
+
+		data_types = [x.upper() for x in data_types]
+		temp = 	
+		query = '''create table ''' +tablename+ ''' ( ''' +temp+ ''' )'''

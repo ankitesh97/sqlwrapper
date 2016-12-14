@@ -5,6 +5,7 @@ class functions():
 	def __init__(self):
 		self.__temp = {}
 		self.final = []
+		self.__data_types = ['INTEGER', 'TEXT', 'REAL', 'NUMERIC', 'BLOB', 'VARCHAR']
 
 	def __rowtodict(self,listofrows):
 
@@ -26,3 +27,8 @@ class functions():
 		return self.__final
 
 
+	def __isvalid_dtype(self,data_type):
+		"""function that validates the data type"""
+		if data_type.upper() in self.__data_types:
+			return True
+		return False
