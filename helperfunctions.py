@@ -24,3 +24,4 @@ class functions():
 			self.__final.append(self.__temp)
 			self.__temp = {}
 		return self.__final
+
