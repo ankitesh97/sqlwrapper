@@ -185,6 +185,34 @@ class sqlwrapper():
 		fetcheddata = self.__helper._functions__rowtodict(fetcheddata)
 		return fetcheddata
 
+	
+	@__configuration_required
+	def insert(self,tablename,columns=None,values=None):
+		"""inserts data in the given tale
+		usage:
+		db.insert('users',['id','name'],[1,'saif'])
+		db.insert('users',[],[1,'saif']) if there are only two columns in the table
+		"""
+
+		length=len(columns)
+		if length!=0:
+			placeholder=['?']*length
+			query="Insert into "+tablename+" ("+','.join(columns)+") Values ("+','.join(placeholder)+")"
+		else:
+			self.__cur=self.__conn.execute('select * from '+tablename)
+			names = list(map(lambda x: x[0], self.__cur.description))
+			l=len(names)
+			placeholder=['?']*l
+			query="Insert into "+tablename+" Values ("+','.join(placeholder)+")"
+		try:
+			self.__cur.execute(query,values)
+			self.__conn.commit()
+		except Exception as e:
+			self.__conn.rollback()
+			return "could not execute query, some error occured please try again, error was: "+str(e)
+
+
+
 	@__configuration_required
 	def delete(self,tablename,where=None):
 		"""deletes data from a given table provided a where condition that identifies
