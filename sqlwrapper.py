@@ -1,6 +1,7 @@
 import sqlite3 as sql
 from helperfunctions import functions
 from functools import wraps
+import hashlib
 
 class sqlwrapper():
 
@@ -17,7 +18,42 @@ class sqlwrapper():
 		self.__conn = None
 		self.__cur = None
 		self.__helper = functions()
+		self.__isroot = 0
+		self.__rootpwd = None
 
+############################################################################################
+######################################## wrappers ##########################################
+############################################################################################
+	
+	def __configuration_required(f):
+		@wraps(f)
+		def isconfigured(self,*args,**kwargs):
+			# checks if database path have been set
+			
+			if(self.__cur == None):
+				return "please set the database path using configure('path/to/your/db') method"
+			
+
+			return f(self,*args,**kwargs)
+		return isconfigured
+
+	def __login_required(f):
+		@wraps(f)
+		def isroot(self,*args,**kwargs):
+			#checks if the user is logged in
+			if(self.__rootpwd == None):
+				return "please set a session password using db.set_session_password(pwd) method"
+			if(self.__isroot == 0):
+				return "please call db.login(pwd) to login to a session"
+			else:
+				return f(self,*args,**kwargs)
+		return isroot
+
+
+
+############################################################################################
+############################## configuration code ##########################################
+############################################################################################
 
 	def configure(self,databasepath):
 		"""set the database path using this function
@@ -32,17 +68,53 @@ class sqlwrapper():
 		self.__conn.row_factory = sql.Row
    		self.__cur = self.__conn.cursor()
 
-	def __configuration_required(f):
-		@wraps(f)
-		def isconfigured(self,*args,**kwargs):
-			# checks if database path have been set
-			
-			if(self.__cur == None):
-				return "please set the database path using configure() method"
-			
 
-			return f(self,*args,**kwargs)
-		return isconfigured 
+   	def set_session_password(self,pwd):
+   		"""set a session password to execute sensitive commands
+   		usage:
+   		db.set_session_password("a_password")
+   		"""
+
+   		if(self.__rootpwd == None):
+   			self.__rootpwd = hashlib.md5(pwd).hexdigest()
+   		else:
+   			self.__change_password(pwd)
+
+   	def login(self,pwd):
+   		"""login to a session to execute sensitive commands
+   		usage:
+   		db.login("password_that_was_set")
+   		"""
+   		if(self.__isroot == 1):
+   			return "User is already logged in"
+   		if(self.__rootpwd == None):
+   			return "please set a session password using db.set_session_password(pwd) method"
+   		else:
+   			if(self.__rootpwd == hashlib.md5(pwd).hexdigest()):
+   				self.__isroot = 1
+   				return "successfully logged in"
+   			else:
+   				return "wrong paswword please try again"
+		return "wrong paswword please try again"
+
+   	@__login_required
+   	def logout(self):
+   		""" logsout the session now no more sesitive commands can be used"""
+   		self.__rootpwd = None
+   		self.__isroot = 0
+
+
+   	@__login_required
+   	def __change_password(self,pwd):
+   		# this method is called when user tries to change its paswword
+   		self.__rootpwd = hashlib.md5(pwd).hexdigest()
+   		return "password successfully changed"
+
+
+############################################################################################
+################################# functional code ##########################################
+############################################################################################
+
 
 	@__configuration_required
 	def fetch_all(self,tablename):
@@ -149,3 +221,24 @@ class sqlwrapper():
 			self.__conn.rollback()
 			return "could not delete from the table, some error occured the error was: "+str(e)
 
+
+	@__configuration_required
+	@__login_required
+	def drop_table(self,tablename):
+		"""drops the given table from the database
+		requires to be authenticated to execute this command
+		usage:
+		drop_table('users')
+		"""
+		# print "table dropped"
+		# return
+		query = 'drop table '+tablename
+		try:
+			self.__cur.execute(query)
+			self.__conn.commit()
+		except Exception as e:
+			self.__conn.rollback()
+			return "could not drop the table, some error occured the error was: "+ str(e)
+
+	@__configuration_required
+	def create_table(self,)
