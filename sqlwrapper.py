@@ -197,7 +197,7 @@ class sqlwrapper():
 		length=len(columns)
 		if length!=0:
 			placeholder=['?']*length
-			query="Insert into "+tablename+" ("+','.join(columns)+") Values ("+','.join(placeholder)+")"
+			query="Insert into " +tablename+ " ("+','.join(columns)+") Values ("+','.join(placeholder)+")"
 		else:
 			self.__cur=self.__conn.execute('select * from '+tablename)
 			names = list(map(lambda x: x[0], self.__cur.description))
