@@ -57,6 +57,10 @@ class sqlwrapper():
 
 	def configure(self,databasepath):
 		"""set the database path using this function
+
+		function definition:
+		configure(databasepath)
+
 		example: db.configure('/path/to/your/database.sqlite')
 		"""
 		self.__databasepath = databasepath
@@ -71,6 +75,10 @@ class sqlwrapper():
 
    	def set_session_password(self,pwd):
    		"""set a session password to execute sensitive commands
+
+   		function definition:
+   		set_session_password(pwd)
+
    		usage:
    		db.set_session_password("a_password")
    		"""
@@ -82,6 +90,10 @@ class sqlwrapper():
 
    	def login(self,pwd):
    		"""login to a session to execute sensitive commands
+
+   		function definition:
+   		login(pwd)
+
    		usage:
    		db.login("password_that_was_set")
    		"""
@@ -118,7 +130,11 @@ class sqlwrapper():
 	@__configuration_required
 	def fetch_all(self,tablename):
 		
-		"""fetches all the data from a given table 
+		"""fetches all the data from a given table
+
+		function definition:
+		fetch_all(tablename)
+
 		example: db.fetch_all('users')
 		return_type: returns list of dictionaries (i.e the whole table)
 		"""
@@ -136,6 +152,10 @@ class sqlwrapper():
 	@__configuration_required
 	def fetch_first(self,tablename):
 		"""fetches the first data from the table
+
+		function definition:
+		fetch_first(tablename)
+
 		example: db.fetch_first('users')
 		return_type: single dictionary (i.e row)
 		"""
@@ -150,8 +170,11 @@ class sqlwrapper():
 		return fetcheddata[0]
 
 	def fetch_last(self,tablename):
-		"""
-		   fetches the last data from the table
+		"""fetches the last data from the table
+
+		function definition:
+		fetch_last(tablename)
+
         example: db.fetch_last('users')
 		return_type: single dictionary (i.e row)
 		"""
@@ -162,14 +185,17 @@ class sqlwrapper():
 		return temp[-1]
 
 	@__configuration_required
-	def fetch_where(self,tablename,where=None):
+	def fetch_where(self,tablename,where):
 		""" fetches data from a given table with where condition
+
+		function definition:
+		fetch_where(tablename,where)
+		type of where clause should be string
+
 		example: db.fetch_where('users','id >= 4')
 		returns: list of dictionaries that satisfies the where clause
 		"""
 
-		if where is None:
-			return self.fetch_all(tablename)
 		if type(where) != str:
 			return "please provide a valid where clause"
 
@@ -186,8 +212,14 @@ class sqlwrapper():
 
 	
 	@__configuration_required
-	def insert(self,tablename,columns=None,values=None):
+	def insert(self,tablename,columns,values):
 		"""inserts data in the given tale
+
+		function definition:
+		insert(tablename,columns,values)
+		columns should be a list containing column names(string)
+		values should be a list containing column values
+
 		usage:
 		db.insert('users',['id','name'],[1,'saif'])
 		db.insert('users',[],[1,'saif']) if there are only two columns in the table
@@ -213,14 +245,18 @@ class sqlwrapper():
 
 
 	@__configuration_required
-	def delete(self,tablename,where=None):
+	def delete(self,tablename,where):
 		"""deletes data from a given table provided a where condition that identifies
 	    the row to delete.
+
+	    function definition:
+	    delete(tablename,where)
+		type of where clause should be string
+
 	    usage:
 	    db.delete('users',"name = 'ankitesh' or id = 4") 
 		"""
-		if where is None:
-			return "please provide a where clause which identifies the row to delete"
+		
 		if type(where) != str:
 			return "please provide a valid where clause"
 
@@ -237,6 +273,10 @@ class sqlwrapper():
 	def delete_all_from(self,tablename):
 
 		"""deletes all data from a given table
+
+		function definition:
+		delete_all_from(tablename)
+
 		usage:
 		db.delete('users')
 		"""
@@ -254,7 +294,11 @@ class sqlwrapper():
 	def drop_table(self,tablename):
 		"""drops the given table from the database
 		requires to be authenticated to execute this command
+		function definition:
+		drop_table(tablename)
+
 		usage:
+		before executing this set the password using set_session_password() method and then login
 		drop_table('users')
 		"""
 		# print "table dropped"
