@@ -100,7 +100,6 @@ class sqlwrapper():
    	@__login_required
    	def logout(self):
    		""" logsout the session now no more sesitive commands can be used"""
-   		self.__rootpwd = None
    		self.__isroot = 0
 
 
@@ -271,14 +270,23 @@ class sqlwrapper():
 	@__configuration_required
 	def create_table(self,tablename,columns,data_types,primary_key):
 		""" creates a table in the database
+
+		function definition:
+		create_table(tablename,columns,data_types,primary_key)
+
 		arguments:
-		coulmns = [] array which contains column names
-		data_types = [] valid data_types = [integer,text,real,numeric,blob,varchar]
+		tablename: appropriate tablename (string)
+		coulmns = [] array which contains column names (string)
+		data_types = [] valid data_types = ['integer','text','real','numeric','blob','varchar']
+		primary_key: a key that uniquely identifies the row (string)
 		"""
 		if(len(columns) == 0):
 			return "please give columns"
-		if(len(columns) == 0):
+		if(len(data_types) == 0):
 			return "please give data_type"
+
+		if(len(columns) != len(data_types)):
+			return "the count of column and data_types doesn't match"
 
 		if primary_key not in columns:
 			return "primary key is not in the column list"
@@ -289,5 +297,21 @@ class sqlwrapper():
 
 
 		data_types = [x.upper() for x in data_types]
-		temp = 	
+		temp =''''''
+		temp_list = []
+		for i in range(len(columns)):
+			if(columns[i] is primary_key):
+				temp_list.append(columns[i]+''' '''+data_types[i]+''' PRIMARY KEY''')
+			else:
+				temp_list.append(columns[i]+''' '''+data_types[i])
+
+		temp = ''', '''.join(temp_list)
 		query = '''create table ''' +tablename+ ''' ( ''' +temp+ ''' )'''
+
+		try:
+			self.__cur.execute(query)
+			self.__conn.commit()
+			
+		except Exception as e:
+			self.__conn.rollback()
+			return "could not execute the query some error occured, the error was: "+str(e)
