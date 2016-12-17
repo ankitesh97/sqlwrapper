@@ -201,7 +201,7 @@ class sqlitewrapper():
 		"""
 
 		if type(where) != str:
-			return "please provide a valid where clause"
+			raise NotAStringError("please provide a valid where clause")
 
 		query = 'select * from ' + tablename + ' where ' + where
 
@@ -262,7 +262,7 @@ class sqlitewrapper():
 		"""
 		
 		if type(where) != str:
-			return "please provide a valid where clause"
+			raise NotAStringError("please provide a valid where clause")
 
 		query = 'delete from '+ tablename + ' where ' + where
 
@@ -392,7 +392,8 @@ class sqlitewrapper():
 		example: db.update('users',['name'],'id >= 4',['saif'])
 		"""
 		if type(where) != str:
-			return "please provide a valid where clause"
+			raise NotAStringError("please provide a valid where clause")
+
 		length=len(columns)
 		placeholder=[s+'=?' for s in columns]
 		query='Update '+tablename+' Set '+','.join(placeholder)+' Where '+where
