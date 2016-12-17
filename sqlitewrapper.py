@@ -1,9 +1,13 @@
 import sqlite3 as sql
 from helperfunctions import functions
+from Errors import *
 from functools import wraps
 import hashlib
 
-class sqlwrapper():
+
+
+
+class sqlitewrapper():
 
 	"""class that provides an interface to query the database
 	use: 
@@ -31,7 +35,7 @@ class sqlwrapper():
 			# checks if database path have been set
 			
 			if(self.__cur == None):
-				return "please set the database path using configure('path/to/your/db') method"
+				raise PathNotSetError("please set the database path using db.config() method")
 			
 
 			return f(self,*args,**kwargs)
@@ -42,9 +46,9 @@ class sqlwrapper():
 		def isroot(self,*args,**kwargs):
 			#checks if the user is logged in
 			if(self.__rootpwd == None):
-				return "please set a session password using db.set_session_password(pwd) method"
+				raise SetPasswordError("please set a session password using db.set_session_password(pwd) method")
 			if(self.__isroot == 0):
-				return "please call db.login(pwd) to login to a session"
+				raise ValidationError("please call db.login(pwd) to login to a session")
 			else:
 				return f(self,*args,**kwargs)
 		return isroot
@@ -67,7 +71,7 @@ class sqlwrapper():
 		try:
 			self.__conn = sql.connect(self.__databasepath)
 		except Exception as e:
-			return "could not connect with the database, some error occured the error was: "+str(e)
+			raise e
 		self.__datatbaseaname = databasepath.split('/')[-1]
 		self.__conn.row_factory = sql.Row
    		self.__cur = self.__conn.cursor()
@@ -100,14 +104,14 @@ class sqlwrapper():
    		if(self.__isroot == 1):
    			return "User is already logged in"
    		if(self.__rootpwd == None):
-   			return "please set a session password using db.set_session_password(pwd) method"
+   			raise SetPasswordError("please set a session password using db.set_session_password(pwd) method")
    		else:
    			if(self.__rootpwd == hashlib.md5(pwd).hexdigest()):
    				self.__isroot = 1
    				return "successfully logged in"
    			else:
-   				return "wrong paswword please try again"
-		return "wrong paswword please try again"
+   				raise ValidationError("wrong paswword please try again")
+		raise ValidationError("wrong paswword please try again")
 
    	@__login_required
    	def logout(self):
@@ -143,7 +147,7 @@ class sqlwrapper():
 		try:
 			self.__cur.execute(query)
 		except Exception as e:
-			return "could not execute query, some error occured please try again, error was: "+str(e)
+			raise e
 	   	fetcheddata = self.__cur.fetchall()  #data type of fetchall is list of rows object
 		fetcheddata = self.__helper._functions__rowtodict(fetcheddata)
 		return fetcheddata
@@ -164,7 +168,7 @@ class sqlwrapper():
 		try:
 			self.__cur.execute(query)
 		except Exception as e:
-			return "could not execute query, some error occured please try again, error was: "+str(e)
+			raise e
 		fetcheddata = self.__cur.fetchall()
 		fetcheddata = self.__helper._functions__rowtodict(fetcheddata)
 		return fetcheddata[0]
@@ -204,7 +208,7 @@ class sqlwrapper():
 		try:
 			self.__cur.execute(query)
 		except Exception as e:
-			return "could not execute query, some error occured please try again, error was: "+str(e)
+			raise e
 
 		fetcheddata = self.__cur.fetchall()
 		fetcheddata = self.__helper._functions__rowtodict(fetcheddata)
@@ -240,7 +244,7 @@ class sqlwrapper():
 			self.__conn.commit()
 		except Exception as e:
 			self.__conn.rollback()
-			return "could not execute query, some error occured please try again, error was: "+str(e)
+			raise e
 
 
 
@@ -267,7 +271,7 @@ class sqlwrapper():
 			self.__conn.commit()
 		except Exception as e:
 			self.__conn.rollback()
-			return "could not delete from the table, some error occured the error was: "+str(e)
+			raise e
 
 	@__configuration_required
 	def delete_all_from(self,tablename):
@@ -286,7 +290,7 @@ class sqlwrapper():
 			self.__conn.commit()
 		except Exception as e:
 			self.__conn.rollback()
-			return "could not delete from the table, some error occured the error was: "+str(e)
+			raise e
 
 
 	@__configuration_required
@@ -309,7 +313,8 @@ class sqlwrapper():
 			self.__conn.commit()
 		except Exception as e:
 			self.__conn.rollback()
-			return "could not drop the table, some error occured the error was: "+ str(e)
+			raise e
+
 
 	@__configuration_required
 	def create_table(self,tablename,columns,data_types,primary_key):
@@ -358,4 +363,19 @@ class sqlwrapper():
 			
 		except Exception as e:
 			self.__conn.rollback()
-			return "could not execute the query some error occured, the error was: "+str(e)
+			raise e
+
+	@__configuration_required
+	def show_tables(self):
+
+		query = "SELECT name FROM sqlite_master WHERE type = 'table'"
+		try:
+			temp = self.__cur.execute(query)
+		except OperationalError as e:
+			raise e
+
+		tables = []
+		for x in temp:
+			tables.append(x["name"])
+		del temp
+		return tables
