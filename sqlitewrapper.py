@@ -379,3 +379,26 @@ class sqlitewrapper():
 			tables.append(x["name"])
 		del temp
 		return tables
+
+
+	@__configuration_required
+	def update(self,tablename,columns,where,values):
+		""" updates data to a given table with where condition
+
+		function definition:
+		update(tablename,columns,where,values)
+		type of where clause should be string
+
+		example: db.update('users',['name'],'id >= 4',['saif'])
+		"""
+		if type(where) != str:
+			return "please provide a valid where clause"
+		length=len(columns)
+		placeholder=[s+'=?' for s in columns]
+		query='Update '+tablename+' Set '+','.join(placeholder)+' Where '+where
+		try:
+			self.__cur.execute(query,values)
+			self.__conn.commit()
+		except Exception as e:
+			self.__conn.rollback()
+			raise e
