@@ -404,3 +404,19 @@ class sqlitewrapper():
 			self.__conn.rollback()
 			raise e
 
+	@__configuration_required
+	def count_entries(self,tablename):
+		""" returns number of entries in a table
+
+		function definition:
+		count_entries(tablename)
+
+		example: db.count_entries('users')
+		"""
+		query="Select count(*) from "+tablename
+		try:
+			self.__cur.execute(query)
+		except Exception as e:
+			raise e
+		fetcheddata = self.__cur.fetchone()
+		return fetcheddata[0]
