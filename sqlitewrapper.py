@@ -201,7 +201,7 @@ class sqlitewrapper():
 		"""
 
 		if type(where) != str:
-			return "please provide a valid where clause"
+			raise NotAStringError("please provide a valid where clause")
 
 		query = 'select * from ' + tablename + ' where ' + where
 
@@ -262,7 +262,7 @@ class sqlitewrapper():
 		"""
 		
 		if type(where) != str:
-			return "please provide a valid where clause"
+			raise NotAStringError("please provide a valid where clause")
 
 		query = 'delete from '+ tablename + ' where ' + where
 
@@ -392,7 +392,8 @@ class sqlitewrapper():
 		example: db.update('users',['name'],'id >= 4',['saif'])
 		"""
 		if type(where) != str:
-			return "please provide a valid where clause"
+			raise NotAStringError("please provide a valid where clause")
+
 		length=len(columns)
 		placeholder=[s+'=?' for s in columns]
 		query='Update '+tablename+' Set '+','.join(placeholder)+' Where '+where
@@ -403,19 +404,3 @@ class sqlitewrapper():
 			self.__conn.rollback()
 			raise e
 
-	@__configuration_required
-	def count_entries(self,tablename):
-		""" counts number of rows/entries in a table
-
-		function definition:
-		count_entries(tablename)
-		
-		example: db.count_entries('users')
-		"""
-		query="Select count(*) from "+tablename
-		try:
-			self.__cur.execute(query)
-			fetcheddata = self.__cur.fetchone()
-			return fetcheddata[0]
-		except Exception as e:
-			raise e

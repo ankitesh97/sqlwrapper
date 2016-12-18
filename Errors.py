@@ -20,4 +20,9 @@ class ValidationError(Exception):
 	def __init__(self, arg):
 		super(ValidationError, self).__init__(message)
 		self.message = message
-		
+
+class NotAStringError(Exception):
+	"""where clause not a string"""
+	def __init__(self,arg):
+		super(NotAStringError,self).__init__(message)
+		self.message = message
