@@ -26,3 +26,12 @@ class NotAStringError(Exception):
 	def __init__(self,arg):
 		super(NotAStringError,self).__init__(message)
 		self.message = message
+
+####################################
+##########postgres##################
+
+class NullConnectionError(Exception):
+	"""pg server is not connected"""
+	def __init__(self,arg):
+		super(NullConnectionError,self).__init__(message)
+		self.message = message

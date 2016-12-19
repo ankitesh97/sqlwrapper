@@ -11,14 +11,14 @@ class sqlitewrapper():
 
 	"""class that provides an interface to query the database
 	use: 
-	from sqlwrapper import sqlwrapper
+	from sqlwrapper import sqlitewrapper
 	db = sqlwrapper()
 	"""
 
 	def __init__(self):
 		self.__databasepath = None
-		self.__datatbaseaname = None
-		self.__metadata = []
+		self.__datatbasename = None
+		self.__metadata = {}
 		self.__conn = None
 		self.__cur = None
 		self.__helper = functions()
@@ -72,7 +72,9 @@ class sqlitewrapper():
 			self.__conn = sql.connect(self.__databasepath)
 		except Exception as e:
 			raise e
-		self.__datatbaseaname = databasepath.split('/')[-1]
+		self.__datatbasename = databasepath.split('/')[-1]
+		self.__metadata["dbname"] = self.__datatbasename
+		self.__metadata["dbpath"] = self.__databasepath
 		self.__conn.row_factory = sql.Row
    		self.__cur = self.__conn.cursor()
 
