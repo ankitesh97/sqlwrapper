@@ -12,7 +12,7 @@ class sqlitewrapper():
 	"""class that provides an interface to query the database
 	use: 
 	from sqlwrapper import sqlitewrapper
-	db = sqlwrapper()
+	db = sqlitewrapper()
 	"""
 
 	def __init__(self):
@@ -59,7 +59,7 @@ class sqlitewrapper():
 ############################## configuration code ##########################################
 ############################################################################################
 
-	def configure(self,databasepath):
+	def connect(self,databasepath):
 		"""set the database path using this function
 
 		function definition:
@@ -151,8 +151,10 @@ class sqlitewrapper():
 		except Exception as e:
 			raise e
 	   	fetcheddata = self.__cur.fetchall()  #data type of fetchall is list of rows object
-		fetcheddata = self.__helper._functions__rowtodict(fetcheddata)
-		return fetcheddata
+		if fetcheddata:
+			fetcheddata = self.__helper._functions__rowtodict(fetcheddata)
+			return fetcheddata
+		return None
 
 
 	@__configuration_required
@@ -172,8 +174,11 @@ class sqlitewrapper():
 		except Exception as e:
 			raise e
 		fetcheddata = self.__cur.fetchall()
-		fetcheddata = self.__helper._functions__rowtodict(fetcheddata)
-		return fetcheddata[0]
+		if fetcheddata:
+			fetcheddata = fetcheddata[0]
+			fetcheddata = self.__helper._functions__rowtodict([fetcheddata])
+			return fetcheddata[0]
+		return None
 
 	def fetch_last(self,tablename):
 		"""fetches the last data from the table
@@ -184,11 +189,17 @@ class sqlitewrapper():
         example: db.fetch_last('users')
 		return_type: single dictionary (i.e row)
 		"""
-
-		temp = self.fetch_all(tablename)
-		if(type(temp) == str):
-			return temp
-		return temp[-1]
+		query = 'select * from ' + tablename
+		try:
+			self.__cur.execute(query)
+		except Exception as e:
+			raise e
+		fetcheddata = self.__cur.fetchall()
+		if fetcheddata:
+			fetcheddata = fetcheddata[-1]
+			fetcheddata = self.__helper._functions.__rowtodict([fetcheddata])
+			return fetcheddata[-1]
+		return None
 
 	@__configuration_required
 	def fetch_where(self,tablename,where):
@@ -236,9 +247,7 @@ class sqlitewrapper():
 			placeholder=['?']*length
 			query="Insert into " +tablename+ " ("+','.join(columns)+") Values ("+','.join(placeholder)+")"
 		else:
-			self.__cur=self.__conn.execute('select * from '+tablename)
-			names = list(map(lambda x: x[0], self.__cur.description))
-			l=len(names)
+			l=len(values)
 			placeholder=['?']*l
 			query="Insert into "+tablename+" Values ("+','.join(placeholder)+")"
 		try:
@@ -332,20 +341,20 @@ class sqlitewrapper():
 		primary_key: a key that uniquely identifies the row (string)
 		"""
 		if(len(columns) == 0):
-			return "please give columns"
+			raise NoColumnsGivenError("Columns list is empty")
+
 		if(len(data_types) == 0):
-			return "please give data_type"
+			raise NoDataTypesGivenError("Data Types list is empty")
 
 		if(len(columns) != len(data_types)):
-			return "the count of column and data_types doesn't match"
+			CountDontMatchError("Column count and data types count don't match")
 
 		if primary_key not in columns:
-			return "primary key is not in the column list"
+			NoPrimaryKeyError("Primary key not in the column list")
 
 		for x in data_types:
 			if(self.__helper._functions__isvalid_dtype(x) == False):
-				return "please give a valid data type"
-
+				DataTypeError("Please give a valid data type")
 
 		data_types = [x.upper() for x in data_types]
 		temp =''''''
@@ -369,7 +378,7 @@ class sqlitewrapper():
 
 	@__configuration_required
 	def show_tables(self):
-
+		""" returns a list of table which contains all the table name in the database"""
 		query = "SELECT name FROM sqlite_master WHERE type = 'table'"
 		try:
 			temp = self.__cur.execute(query)

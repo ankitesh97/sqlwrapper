@@ -1,5 +1,5 @@
 
-
+import re
 class functions():
 
 	def __init__(self):
@@ -53,3 +53,9 @@ class functions():
 		for x in descobj:
 			coulmns.append(x[0])
 		return coulmns
+
+
+
+
+
+
