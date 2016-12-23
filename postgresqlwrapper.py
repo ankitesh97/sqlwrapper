@@ -41,7 +41,7 @@ class psqlwrapper():
 ############################################################################################
 
 	
-	def connect(self, database, user, password, host, port):
+	def connect(self, database, user, password, host='127.0.0.1', port=5432):
 		self.__metadata["dbname"] = database
 		self.__metadata["user"] = user
 		self.__metadata["host"] = host
@@ -90,7 +90,7 @@ class psqlwrapper():
 		example: db.fetch_first('users')
 		return_type: returns the first data in the given table
 		"""
-		query = 'select * from "'+tablename+'" ASC LIMIT 1'
+		query = 'select * from "'+tablename+'" LIMIT 1'
 		try:
 			self.__cur.execute(query)
 		except Exception as e:
@@ -99,7 +99,8 @@ class psqlwrapper():
 		fetcheddata = self.__cur.fetchall()
 		if fetcheddata:
 			fetcheddata = fetcheddata[0]
-			fetcheddata = self.__helper._functions__pgtodict([fetcheddata])
+			columns = self.__helper._functions__desc_to_columns(self.__cur.description)
+			fetcheddata = self.__helper._functions__pgtodict([fetcheddata],columns)
 			return fetcheddata[0]
 		return None
 
@@ -113,7 +114,7 @@ class psqlwrapper():
 		example: db.fetch_last('users')
 		return_type: single dictionary (i.e row)
 		"""
-		query = 'select * from ' + tablename
+		query = 'select * from "' + tablename + '"'
 		try:
 			self.__cur.execute(query)
 		except Exception as e:
@@ -122,7 +123,8 @@ class psqlwrapper():
 		fetcheddata = self.__cur.fetchall()
 		if fetcheddata:
 			fetcheddata = fetcheddata[-1]
-			fetcheddata = self.__helper._functions.__pgtodict([fetcheddata])
+			columns = self.__helper._functions__desc_to_columns(self.__cur.description)
+			fetcheddata = self.__helper._functions__pgtodict([fetcheddata],columns)
 			return fetcheddata[-1]
 		return None
 
@@ -149,12 +151,14 @@ class psqlwrapper():
 		try:
 			self.__cur.execute(query,values)
 		except Exception as e:
+			self.__conn.rollback()
 			raise e
 		fetcheddata = self.__cur.fetchall()
 		if fetcheddata:
-			fetcheddata = self.__helper._functions.__pgtodict(fetcheddata)
+			columns = self.__helper._functions__desc_to_columns(self.__cur.description)
+			fetcheddata = self.__helper._functions__pgtodict(fetcheddata,columns)
 			return fetcheddata
-		return None
+		return []
 
 	@__configuration_required
 	def insert(self, tablename, columns, values):
@@ -170,7 +174,8 @@ class psqlwrapper():
 		db.insert('users',['id','name'],[1,'saif'])
 		db.insert('users',[],[1,'saif']) if there are only two columns in the table
 		"""
-
+		if not values:
+			raise NoValuesGivenError("No values given to insert")
 		length=len(columns)
 		if length!=0:
 			placeholder=['%s']*length
@@ -255,10 +260,10 @@ class psqlwrapper():
 			raise NoDataTypesGivenError("Data Types list is empty")
 
 		if (len(columns) != len(data_types)):
-			CountDontMatchError("Column count and data types count don't match")
+			raise CountDontMatchError("Column count and data types count don't match")
 
 		if primary_key not in columns:
-			NoPrimaryKeyError("Primary key not in the column list")
+			raise NoPrimaryKeyError("Primary key not in the column list")
 
 		for x in data_types:
 			if (self.__helper._functions__isvalid_dtype(x) == False):
@@ -286,12 +291,12 @@ class psqlwrapper():
 	@__configuration_required
 	def show_tables(self):
 		""" returns a list of table which contains all the table name in the database"""
-		query = 'SELECT table_name FROM information_schema.tables WHERE type_schema = %s'
+		query = 'SELECT table_name FROM information_schema.tables where table_schema = %s'
 		try:
-			temp = self.__cur.execute(query, ['public'])
+			self.__cur.execute(query, ['public'])
+			temp = self.__cur.fetchall()
 		except Exception as e:
 			raise e
-
 		tables = []
 		for x in temp:
 			tables.append(x[0])
@@ -309,6 +314,8 @@ class psqlwrapper():
 		values = [] should be a list of vlaues corresponding to the columns
 		kwargs should be a column name = its value(it is where clause which will identify the row
 		note: for where clause if multiple keyword arguments are supplied it will be joined using and
+		also you can't update the whole row at once without giving the column names
+
 		example: db.update('users',['name'],['saif'], id=4)
 		db.update('Books', ['title', 'cover'], ['new_title','new_cover'], pages>100, pages<200)
 		in this case it will be equivalent to pages between 100 and 200
@@ -336,16 +343,30 @@ class psqlwrapper():
 
 		function definition:
 		count_entries(tablename)
-
+		returns in terms of long i.e 6L that means 6 long
 		example: db.count_entries('users')
 		"""
 		query="Select count(*) from "+tablename
 		try:
 			self.__cur.execute(query)
 		except Exception as e:
+			self.__conn.rollback()
 			raise e
 		fetcheddata = self.__cur.fetchone()
 		return fetcheddata[0]
+
+	@__configuration_required
+	def describe_table(self,tablename):
+		"""describes the columns of the given table
+		describe_table(tablename)
+		"""
+		query = 'select * from "'+tablename+'"'
+		try:
+			self.__cur.execute(query)
+		except Exception as e:
+			self.__conn.rollback()
+			raise e
+		return self.__cur.description
 
 
 

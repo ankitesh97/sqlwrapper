@@ -149,6 +149,7 @@ class sqlitewrapper():
 		try:
 			self.__cur.execute(query)
 		except Exception as e:
+			self.__conn.rollback()
 			raise e
 	   	fetcheddata = self.__cur.fetchall()  #data type of fetchall is list of rows object
 		if fetcheddata:
@@ -172,6 +173,7 @@ class sqlitewrapper():
 		try:
 			self.__cur.execute(query)
 		except Exception as e:
+			self.__conn.rollback()
 			raise e
 		fetcheddata = self.__cur.fetchall()
 		if fetcheddata:
@@ -193,6 +195,7 @@ class sqlitewrapper():
 		try:
 			self.__cur.execute(query)
 		except Exception as e:
+			self.__conn.rollback()
 			raise e
 		fetcheddata = self.__cur.fetchall()
 		if fetcheddata:
@@ -221,6 +224,7 @@ class sqlitewrapper():
 		try:
 			self.__cur.execute(query)
 		except Exception as e:
+			self.__conn.rollback()
 			raise e
 
 		fetcheddata = self.__cur.fetchall()
@@ -382,7 +386,8 @@ class sqlitewrapper():
 		query = "SELECT name FROM sqlite_master WHERE type = 'table'"
 		try:
 			temp = self.__cur.execute(query)
-		except OperationalError as e:
+		except Exception as e:
+			self.__conn.rollback()
 			raise e
 
 		tables = []
@@ -428,6 +433,20 @@ class sqlitewrapper():
 		try:
 			self.__cur.execute(query)
 		except Exception as e:
+			self.__conn.rollback()
 			raise e
 		fetcheddata = self.__cur.fetchone()
 		return fetcheddata[0]
+
+	@__configuration_required
+	def describe_table(self,tablename):
+		"""describes the columns of the given table
+		describe_table(tablename)
+		"""
+		query = "select * from "+tablename
+		try:
+			self.__cur.execute(query)
+		except Exception as e:
+			self.__conn.rollback()
+			raise e
+		return self.__cur.description

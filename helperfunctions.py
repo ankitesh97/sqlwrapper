@@ -43,6 +43,7 @@ class functions():
 				for i in range(len(columns)):
 					self.__temp[columns[i]] = data[i]
 				self.__final.append(self.__temp)
+				self.__temp = {}
 		except Exception as e:
 			raise e
 		return self.__final

@@ -66,3 +66,9 @@ class DataTypeError(Exception):
 	def __init__(self,message):
 		super(DataTypeError, self).__init__(message)
 		self.message = message
+
+
+class NoValuesGivenError(Exception):
+	def __init__(self, message):
+		super(NoValuesGivenError, self).__init__(message)
+		self.message = message
