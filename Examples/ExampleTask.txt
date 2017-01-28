@@ -1,0 +1,4 @@
+
+Let's create a sample CRUD application to understand the usage of this module
+
+The application is a management system which manages a pet store

@@ -398,7 +398,7 @@ class sqlitewrapper():
 
 
 	@__configuration_required
-	def update(self,tablename,columns,where,values):
+	def update(self,tablename,columns,values,where):
 		""" updates data to a given table with where condition
 
 		function definition:
@@ -411,6 +411,9 @@ class sqlitewrapper():
 			raise NotAStringError("please provide a valid where clause")
 
 		length=len(columns)
+		if length==0:
+			raise NoColumnsGivenError("Columns list is empty")
+
 		placeholder=[s+'=?' for s in columns]
 		query='Update '+tablename+' Set '+','.join(placeholder)+' Where '+where
 		try:
