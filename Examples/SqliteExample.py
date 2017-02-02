@@ -27,7 +27,7 @@ db.describe_table()
 #let's insert some values
 #it takes columns and values
 
-db.insert('dogs', ['id','breed','color','height',],[1,'Labrador','yellow',29.4])
+db.insert('dogs', ['id','breed','color','weight',],[1,'Labrador','yellow',29.4])
 #the above query can also be written as
 db.insert('dogs',[],[2,'German Shepherd','black',30.6])
 #let's say i got a new dog but its weight is unknown

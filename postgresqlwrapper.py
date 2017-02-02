@@ -133,11 +133,11 @@ class psqlwrapper():
 		""" fetches data from a given table with where condition
 
 		function definition:
-		fetch_where(tablename,**kwargs)
+		fetch_by(tablename,**kwargs)
 		kwargs should be a column name = its value(it is where clause which will identify the row
 		note: for where clause if multiple keyword arguments are supplied it will be joined using and
 
-		example: db.fetch_where('users',id = 4)
+		example: db.fetch_by('users',id = 4)
 		returns: list of dictionaries that satisfies the where clause
 		"""
 
