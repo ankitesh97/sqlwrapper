@@ -8,7 +8,7 @@ class mysqlwrapper():
 
 	"""class that provides an interface to query the mysql server
 	   use:
-	   from sqlwrapper import mysqlwrapper
+	   from mysqlwrapper import mysqlwrapper
 	   db = mysqlwrapper()
 	"""
 
@@ -131,7 +131,7 @@ class mysqlwrapper():
 	def fetch_by(self, tablename, where):
 		""" fetches data from a given table with where condition
 		function definition:
-		fetch_where(tablename,**kwargs)
+		fetch_by(tablename,**kwargs)
 		kwargs should be a column name = its value(it is where clause which will identify the row
 		note: for where clause if multiple keyword arguments are supplied it will be joined using and
 		example: db.fetch_where('users',id = 4)
@@ -239,7 +239,7 @@ class mysqlwrapper():
 		arguments:
 		tablename: appropriate tablename (string)
 		coulmns = [] array which contains column names (string)
-		data_types = [] valid data_types = ['integer','text','real','numeric','blob','varchar']
+		data_types = [] valid data_types = ['integer','text','real','numeric','blob']
 		primary_key: a key that uniquely identifies the row (string)
 		"""
 		if (len(columns) == 0):
@@ -293,32 +293,31 @@ class mysqlwrapper():
 		return tables
 
 	@__configuration_required
-	def update_by(self,tablename,columns,values, **kwargs):
+	def update_by(self,tablename,columns,values, where):
 		""" updates data to a given table with where condition
 		function definition:
-		update(tablename,columns,values,**kwargs)
+		update_by(tablename,columns,values,where)
 		tablename is the name of the table
 		columns = [] should be a list of columns that is to be updated
 		values = [] should be a list of vlaues corresponding to the columns
-		kwargs should be a column name = its value(it is where clause which will identify the row
+		where clause should be a string
 		note: for where clause if multiple keyword arguments are supplied it will be joined using and
 		also you can't update the whole row at once without giving the column names
-		example: db.update('users',['name'],['saif'], id=4)
-		db.update('Books', ['title', 'cover'], ['new_title','new_cover'], pages>100, pages<200)
-		in this case it will be equivalent to pages between 100 and 200
+		example: db.update_by('users',['name'],['saif'], "id=4")
 		"""
 		if len(columns) == 0:
 			raise NoColumnsGivenError("Columns list is empty")
+		if type(where) != str:
+			raise NotAStringError("please provide a valid where clause")
 
-		placeholder = ['"'+x+'" = %s' for x in columns]
-		keys = kwargs.keys()
-		val = kwargs.values()
-	 	if not keys:
-			query = 'Update "'+tablename+'" Set '+ ", ".join(placeholder)
+		placeholder = [x+' = %s' for x in columns]
+		if(len(where)==0):
+			query = 'Update '+tablename+' Set '+", ".join(placeholder) 
 		else:
-			query = 'Update "'+tablename+'" Set '+", ".join(placeholder) + ' Where '+"and".join(['"'+x+'" = %s' for x in keys])
+			query = 'Update '+tablename+' Set '+", ".join(placeholder) + ' where '+ where
 		try:
-			self.__cur.execute(query,values+val)
+			
+			self.__cur.execute(query,values)
 			self.__conn.commit()
 		except Exception as e:
 			self.__conn.rollback()
