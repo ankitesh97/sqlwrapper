@@ -187,11 +187,11 @@ class mysqlwrapper():
 	def delete_by(self, tablename, where):
 		""" deletes the entry from the table using the where clause to identify the row
 		function definition:
-		delete_by(tablename. **kwargs)
-		kwargs should be a column name = its value(it is where clause which will identify the row
+		delete_by(tablename,where)
+		where is a string which contains the condition
 		note: for where clause if multiple keyword arguments are supplied it will be joined using and
 		example:
-		delete_by('users',id=4)
+		delete_by('users',"id=4")
 		"""
 		if type(where) != str:
 			raise NotAStringError("please provide a valid where clause")
