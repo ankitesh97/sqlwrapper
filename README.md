@@ -31,20 +31,20 @@ Very easy to understang and use
 ### object for sqlite
 
 ```python
->> from sqlitewrapper import sqlitewrapper
+>> from sqlwrapper import sqlitewrapper
 >> db = sqlitewrapper()
 ```
 
 ### object for Mysql
 
 ```python
->> from mysqlwrapper import mysqlwrapper
+>> from sqlwrapper import mysqlwrapper
 >> db = mysqlwrapper()
 ```
 ### object for PostgreSql
 
 ```python
->> from postgreswrapper import psqlwrapper
+>> from sqlwrapper import psqlwrapper
 >> db = psqlwrapper()
 ```
 Description of all the methods are in the package documentation which can be viewed from the official pypi website
