@@ -7,7 +7,7 @@ setup(
   author = 'Ankitesh Gupta, Saif Vazir',
   author_email = 'ankiteshguptas@gmail.com,ssv.saif@gmail.com',
   url = 'https://github.com/ankitesh97/sqlwrapper',
-  download_url = 'https://github.com/ankitesh97/sqlwrapper/tarball/v0.1',
+  download_url = 'https://github.com/ankitesh97/sqlwrapper/tarball/0.1',
   keywords = ['sql', 'sqlite', 'database', 'queries', 'sqlwrapper','sql', 'mysql', 'postgresql'],
   classifiers = [],
 )
