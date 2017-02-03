@@ -1,6 +1,6 @@
 
 #import the module, mysqlwrapper is a class defined inside the module
-from mysqlwrapper import mysqlwrapper
+from sqlwrapper import mysqlwrapper
 
 #create a db object
 db=mysqlwrapper()

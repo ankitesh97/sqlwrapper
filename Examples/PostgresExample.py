@@ -1,7 +1,7 @@
 
 # import the module, psqlwrapper is a class defined inside the  postgresqlwrapper module
 
-from postgresqlwrapper import psqlwrapper
+from sqlwrapper import psqlwrapper
 
 #create a db object
 db = psqlwrapper()

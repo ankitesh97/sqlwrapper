@@ -1,6 +1,6 @@
 
 #import the module, sqlitewrapper is a class defined inside the module
-from sqlitewrapper import sqlitewrapper
+from sqlwrapper import sqlitewrapper
 
 #create a db object
 db = sqlitewrapper()
