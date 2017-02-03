@@ -249,7 +249,7 @@ class psqlwrapper():
 		arguments:
 		tablename: appropriate tablename (string)
 		coulmns = [] array which contains column names (string)
-		data_types = [] valid data_types = ['integer','text','real','numeric','blob','varchar']
+		data_types = [] valid data_types = ['integer','text','real','numeric','blob']
 		primary_key: a key that uniquely identifies the row (string)
 
 		"""

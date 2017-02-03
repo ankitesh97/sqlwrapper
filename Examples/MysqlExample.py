@@ -6,7 +6,7 @@ from mysqlwrapper import mysqlwrapper
 db=mysqlwrapper()
 
 #let's connect to our mysql database
-db.mysqlconnect("localhost","root","","test")	
+db.connect("localhost","username","password","dbname")	
 
 #For example: host="localhost",user="root",password="1234",dbname="test"
 #if everything goes correct you have successfully connected to your database

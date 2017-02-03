@@ -41,7 +41,7 @@ class mysqlwrapper():
 ############################################################################################
 
 	
-	def mysqlconnect(self,host,user,password,dbname):
+	def connect(self,host,user,password,dbname):
 		#self.__metadata["dbname"] = dbname
 		self.__databasename=dbname
 		#self.__metadata["user"] = user
@@ -130,11 +130,12 @@ class mysqlwrapper():
 	@__configuration_required
 	def fetch_by(self, tablename, where):
 		""" fetches data from a given table with where condition
+
 		function definition:
-		fetch_by(tablename,**kwargs)
-		kwargs should be a column name = its value(it is where clause which will identify the row
-		note: for where clause if multiple keyword arguments are supplied it will be joined using and
-		example: db.fetch_where('users',id = 4)
+		fetch_where(tablename,where)
+		type of where clause should be string
+
+		example: db.fetch_where('users','id >= 4')
 		returns: list of dictionaries that satisfies the where clause
 		"""
 

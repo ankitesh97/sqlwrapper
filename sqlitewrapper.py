@@ -63,9 +63,9 @@ class sqlitewrapper():
 		"""set the database path using this function
 
 		function definition:
-		configure(databasepath)
+		connect(databasepath)
 
-		example: db.configure('/path/to/your/database.sqlite')
+		example: db.connect('/path/to/your/database.sqlite')
 		"""
 		self.__databasepath = databasepath
 		try:
@@ -341,7 +341,7 @@ class sqlitewrapper():
 		arguments:
 		tablename: appropriate tablename (string)
 		coulmns = [] array which contains column names (string)
-		data_types = [] valid data_types = ['integer','text','real','numeric','blob','varchar']
+		data_types = [] valid data_types = ['integer','text','real','numeric','blob']
 		primary_key: a key that uniquely identifies the row (string)
 		"""
 		if(len(columns) == 0):
