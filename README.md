@@ -47,7 +47,7 @@ Very easy to understang and use
 >> from postgreswrapper import psqlwrapper
 >> db = psqlwrapper()
 ```
-Description of all the methods are in the package documentation which can be viewd from the official pypi website
+Description of all the methods are in the package documentation which can be viewed from the official pypi website
 
 ## Cookbook
 Examples are in the Examples folder
